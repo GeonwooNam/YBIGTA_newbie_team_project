@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin: 20px 0;
+        }
+        input {
+            padding: 10px;
+            margin: 5px 0;
+            width: 80%;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="login-screen">
+        <h1>User Management</h1>
+        <div class="section" id="login-section">
+            <h2>Login</h2>
+            <form id="login-form">
+                <input type="email" id="login-email" placeholder="Email" required><br>
+                <input type="password" id="login-password" placeholder="Password" required><br>
+                <button type="button" onclick="loginUser()">Login</button>
+            </form>
+        </div>
+        <div class="section" id="register-section">
+            <h2>Register</h2>
+            <form id="register-form">
+                <input type="email" id="register-email" placeholder="Email" required><br>
+                <input type="password" id="register-password" placeholder="Password" required><br>
+                <input type="text" id="register-username" placeholder="Username" required><br>
+                <button type="button" onclick="registerUser()">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container" id="logged-in-screen" style="display: none;">
+        <h1>Welcome, <span id="username"></span></h1>
+        <div class="section" id="update-password-section">
+            <h2>Update Password</h2>
+            <form id="update-password-form">
+                <input type="password" id="update-password" placeholder="New Password" required><br>
+                <button type="button" onclick="updatePassword()">Update Password</button>
+            </form>
+        </div>
+
+        <div class="section" id="delete-section">
+            <h2>Delete Account</h2>
+            <button type="button" onclick="deleteUser()">Delete Account</button>
+        </div>
+    </div>
+
+    <script>
+        let userEmail = null;
+
+        function loginUser() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            fetch('/api/user/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(error => { throw new Error(error.detail); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                userEmail = email; // 로그인 성공 시 이메일 저장
+                document.getElementById('username').textContent = `Hello, ${data.username}!`; // 사용자 이름 표시
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('logged-in-screen').style.display = 'block';
+            })
+            .catch(error => alert(`Login failed: ${error.message}`));
+        }
+
+        function registerUser() {
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const username = document.getElementById('register-username').value;
+
+            fetch('/api/user/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password, username })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(error => { throw new Error(error.detail); });
+                }
+                return response.json();
+            })
+            .then(() => alert(`Registration successful! Welcome, ${username}.`)) // 성공 메시지에 사용자 이름 표시
+            .catch(error => alert(`Registration failed: ${error.message}`));
+        }
+
+        function updatePassword() {
+            const newPassword = document.getElementById('update-password').value;
+
+            fetch('/api/user/update-password', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: userEmail, new_password: newPassword })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(error => { throw new Error(error.detail); });
+                }
+                return response.json();
+            })
+            .then(() => alert(`Password successfully updated!`)) // 성공 메시지
+            .catch(error => alert(`Password update failed: ${error.message}`));
+        }
+
+        function deleteUser() {
+            if (!userEmail) {
+                alert("No user is logged in.");
+                return;
+            }
+
+            fetch('/api/user/delete', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: userEmail }) // 저장된 이메일 전송
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(error => { throw new Error(error.detail); });
+                }
+                return response.json();
+            })
+            .then(() => {
+                alert(`User deleted successfully!`);
+                document.getElementById('logged-in-screen').style.display = 'none';
+                document.getElementById('login-screen').style.display = 'block';
+                userEmail = null; // 이메일 초기화
+            })
+            .catch(error => alert(`Account deletion failed: ${error.message}`));
+        }
+    </script>
+</body>
+</html>
