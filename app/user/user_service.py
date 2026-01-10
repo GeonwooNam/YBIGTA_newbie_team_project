@@ -9,11 +9,11 @@ class UserService:
         ## TODO
         email: EmailStr = user_login.email 
         password: str = user_login.password
-        user: User = self.repo.get_user_by_email(login_email)
+        user: User = self.repo.get_user_by_email(email)
         if user is None:
             raise ValueError("User not Found.")
         if password != user.password:
-            raise ValueError("Invalid PW")
+            raise ValueError("Invalid ID/PW")
         return user
         
     def register_user(self, new_user: User) -> User:
@@ -37,7 +37,7 @@ class UserService:
         new_password: str = user_update.new_password
         updated_user: User = self.repo.get_user_by_email(email)
         if updated_user is None:
-            raise ValueError("User not Found")
+            raise ValueError("User not Found.")
         updated_user.password = new_password 
         updated_user = self.repo.save_user(updated_user)
         return updated_user
