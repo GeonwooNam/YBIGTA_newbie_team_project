@@ -101,7 +101,7 @@
             })
             .then(data => {
                 userEmail = email; // 로그인 성공 시 이메일 저장
-                document.getElementById('username').textContent = `Hello, ${data.username}!`; // 사용자 이름 표시
+                document.getElementById('username').textContent = `${data.data.username}!`; // 사용자 이름 표시
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('logged-in-screen').style.display = 'block';
             })
