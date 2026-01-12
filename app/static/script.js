@@ -152,20 +152,26 @@ function deleteUser() {
     // 2) 로그인/회원가입 버튼 클릭 시 전체 touched 처리(아이콘 한 번에 보이게)
     const loginForm = document.getElementById("login-form");
     const registerForm = document.getElementById("register-form");
+    const updateForm = document.getElementById("update-password-section");
 
     if (loginForm) {
-      const btn = loginForm.querySelector('button[onclick*="loginUser"]');
-      if (btn) btn.addEventListener("click", () => touchAndUpdateForm(loginForm));
+        const btn = loginForm.querySelector('button[onclick*="loginUser"]');
+        if (btn) btn.addEventListener("click", () => touchAndUpdateForm(loginForm));
     }
 
     if (registerForm) {
-      const btn = registerForm.querySelector('button[onclick*="registerUser"]');
-      if (btn) btn.addEventListener("click", () => touchAndUpdateForm(registerForm));
+        const btn = registerForm.querySelector('button[onclick*="registerUser"]');
+        if (btn) btn.addEventListener("click", () => touchAndUpdateForm(registerForm));
+    }
+
+    if (updateForm) {
+        const btn = registerForm.querySelector('button[onclick*="updatePassword"]');
+        if (btn) btn.addEventListener("click", () => touchAndUpdateForm(updateForm));
     }
 
     // 3) 크롬 자동완성은 로드 직후 늦게 들어오는 경우가 있어 한번 더
     setTimeout(() => {
-      document.querySelectorAll(".input-wrap input").forEach(updateOne);
+        document.querySelectorAll(".input-wrap input").forEach(updateOne);
     }, 80);
   });
 })();

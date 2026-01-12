@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20260112_1">
     <link rel="stylesheet" as="style" crossorigin
     href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
     <title>User Management</title>
@@ -49,7 +49,7 @@
     </div>
 
     <div class="container" id="logged-in-screen" style="display: none;">
-        <h1>Welcome, <span id="username"></span></h1>
+        <h1>Welcome, <span id="username"></span></h1><br>
         <div class="section" id="update-password-section">
             <h2>Update Password</h2>
             <form id="update-password-form">
@@ -58,8 +58,7 @@
                 </div>
                 <button type="button" onclick="updatePassword()">Update Password</button>
             </form>
-        </div>
-
+        </div><br>
         <div class="section" id="delete-section">
             <h2>Delete Account</h2>
             <button type="button" onclick="deleteUser()">Delete Account</button>

@@ -1,23 +1,34 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
 body {
     font-family: 
         "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
         "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
-    margin: 20px;
+    /* margin: 20px; */
     text-align: center;
     color: rgb(255, 255, 255);
 
-    background:
-        linear-gradient(
-            135deg,
-            rgba(66, 82, 160, 0.6), 
-            rgba(109, 60, 151, 0.3)),
-        url("https://images.wallpapersden.com/image/download/fantasy-castle-pixel-art_bW1uaWuUmZqaraWkpJRmbmdlrWZlbWY.jpg") center / cover no-repeat fixed;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-
+    user-select:none;
     -webkit-user-select:none;
     -moz-user-select:none;
     -ms-user-select:none;
-    user-select:none
+}
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+        linear-gradient(135deg,rgba(66, 82, 160, 0.6),rgba(109, 60, 151, 0.3)),
+        url("https://images.wallpapersden.com/image/download/fantasy-castle-pixel-art_bW1uaWuUmZqaraWkpJRmbmdlrWZlbWY.jpg") 
+        center / cover no-repeat fixed;
 }
 body h1 {
     font-size: 36px;
@@ -37,12 +48,12 @@ body h1 {
     transform: translateY(10px);
 }
 .container {
-    max-width: 320px;
+    width: 320px;
     margin: 0 auto;
     padding: 20px;
     border-radius: 12px;
-    backdrop-filter: blur(12px) saturate(150%);
-    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    backdrop-filter: blur(8px) saturate(150%);
+    -webkit-backdrop-filter: blur(8px) saturate(150%);
     background-color: rgba(23, 17, 40, 0.7);
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.125);
