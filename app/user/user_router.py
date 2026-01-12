@@ -20,7 +20,7 @@ def login_user(user_login: UserLogin, service: UserService = Depends(get_user_se
 def register_user(user: User, service: UserService = Depends(get_user_service)) -> BaseResponse[User]:
     ## TODO
     try:
-        user: User = service.register_user(user)
+        user = service.register_user(user)
         return BaseResponse(status="success", data=user, message="User registeration success.")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
