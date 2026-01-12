@@ -1,0 +1,159 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: 
+        "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+        "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    /* margin: 20px; */
+    text-align: center;
+    color: rgb(255, 255, 255);
+
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    user-select:none;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+}
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+        linear-gradient(135deg,rgba(66, 82, 160, 0.6),rgba(109, 60, 151, 0.3)),
+        url("https://images.wallpapersden.com/image/download/fantasy-castle-pixel-art_bW1uaWuUmZqaraWkpJRmbmdlrWZlbWY.jpg") 
+        center / cover no-repeat fixed;
+}
+body h1 {
+    font-size: 36px;
+    font-weight: 300;
+    margin-bottom: 15px;
+}
+.title{
+    display: flex;
+    align-items: center;
+    gap: 10px;              
+    margin: 0 0 12px;
+}
+.title-icon{
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    transform: translateY(10px);
+}
+.container {
+    width: 320px;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 12px;
+    backdrop-filter: blur(8px) saturate(150%);
+    -webkit-backdrop-filter: blur(8px) saturate(150%);
+    background-color: rgba(23, 17, 40, 0.7);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.125);
+    cursor: pointer;
+}
+.container h2 {
+    font-size: 24px;
+    font-weight: 300;
+    margin-bottom: 0px;
+}
+form {
+    margin: 20px 0;
+}
+.input-wrap {
+    margin: 0 auto;
+}
+.input-wrap input{
+    padding: 10px 0px 10px 0px;
+    margin: 0 auto;
+    width: 100%;
+    font-size: 16px;
+    color: rgb(255, 255, 255);
+    outline: none;
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgb(144, 144, 144);
+}
+input::placeholder,
+textarea::placeholder {
+    color: rgb(144, 144, 144)
+}
+.input-wrap[data-touched="1"][data-state="valid"] input{
+    border-bottom: 1px solid rgb(144, 144, 144);
+}
+.input-wrap[data-touched="1"][data-state="invalid"] input{
+    border-bottom: 2px solid rgb(255, 68, 68);
+}
+.input-wrap[data-touched="1"][data-state="invalid"] .status {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+    max-height: none;
+    transition:
+        opacity 180ms ease,
+        transform 180ms ease,
+        visibility 0s;   
+    position: static;
+}
+.status::before {
+    content: "ⓘ Enter a valid email";
+}
+.status {
+    max-height: 0px;
+    display: block; 
+    margin: 0 auto;
+    margin-top: 6px;
+    font-size: 12px;
+    text-align: left;
+    color: rgb(255, 68, 68);
+    opacity: 0;
+    transform: translateY(-4px);
+    visibility: hidden;
+    pointer-events: none;
+    transition: 
+        opacity 220ms ease,
+        transform 220ms ease,
+        visibility 0s linear 220ms;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: rgb(255, 255, 255);
+  caret-color: rgb(255, 255, 255);
+
+  -webkit-box-shadow: 0 0 0px 1000px rgba(255,255,255,0) inset;
+  box-shadow: 0 0 0px 1000px rgba(255,255,255,0) inset;
+
+  transition: background-color 9999s ease-in-out 0s; 
+}
+button {
+    display: block;
+    width: 100%;
+    margin: 10px 0px 0px 0px;
+    padding: 14px 20px;
+    font-size: 16px;
+    color: rgb(255, 255, 255);
+    border: none;
+    border-radius: 12px;
+    background: 
+        linear-gradient(
+            135deg,
+            rgb(79, 111, 241), 
+            rgb(137, 125, 248)
+        );
+    box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+}
+.section {
+    margin-bottom: 0px;
+}
