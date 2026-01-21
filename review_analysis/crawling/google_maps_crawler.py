@@ -62,7 +62,9 @@ class GoogleMapsCrawler(BaseCrawler):
             })
             if platform.system().lower() == "linux":
                 options.binary_location = "/usr/bin/google-chrome"
-            # options 설정 (Window / Linux 설정 포함)
+            if platform.system().lower() == "darwin":
+                options.binary_location = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+            # options 설정 (Window / Linux / Mac 설정 포함)
 
             self.driver = webdriver.Chrome(
                 service=Service(ChromeDriverManager().install()), 
@@ -83,6 +85,10 @@ class GoogleMapsCrawler(BaseCrawler):
         """
         review_count만큼 리뷰를 수집합니다.
         관련도순(기본)의 상위 리뷰를 기준으로 합니다.
+
+        사이트에서 에버랜드를 검색한 후, 옆의 사이드바에서 "리뷰" 버튼을 누른 후 review_count만큼의 리뷰가 보일 때까지 스크롤을 내립니다.
+        이후 Network에 감지된 리뷰가 10개씩 묶인 데이터 파일을 get method로 모두 받아옵니다.
+        각각의 데이터를 List로 변환하여 리뷰 별점, 리뷰가 적힌 날짜, 리뷰 본문을 추출하여 self.rows에 형식에 맞추어 저장합니다.
         """
 
         self.start_browser()
