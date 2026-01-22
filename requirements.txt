@@ -1,0 +1,17 @@
+# Web Crawling
+selenium>=4.15.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+webdriver-manager>=4.0.0
+requests>=2.31.0
+types-requests>=2.31.0
+
+# Data Processing and Analysis
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Machine Learning and Text Processing
+scikit-learn>=1.3.0
+
+# Visualization
+matplotlib>=3.7.0
