@@ -8,19 +8,19 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import os
 from datetime import datetime
+import platform
 
-# 한글 폰트 설정 (Windows)
-plt.rcParams['font.family'] = 'Malgun Gothic'  # Windows
-plt.rcParams['axes.unicode_minus'] = False  # 마이너스 기호 깨짐 방지
+# 운영체제 확인 후 한글폰트 설정
+if platform.system() == 'Windows':
+    plt.rc('font', family='Malgun Gothic')
+elif platform.system() == 'Darwin': # Mac
+    plt.rc('font', family='AppleGothic')
+elif platform.system() == 'Linux': # Linux
+    # 리눅스는 나눔고딕(NanumGothic)이 기본적으로 많이 쓰입니다.
+    plt.rc('font', family='NanumGothic')
 
-# 한글 폰트가 없을 경우 대비
-try:
-    plt.rcParams['font.family'] = 'Malgun Gothic'
-except:
-    try:
-        plt.rcParams['font.family'] = 'AppleGothic'  # Mac
-    except:
-        plt.rcParams['font.family'] = 'DejaVu Sans'  # Linux/기본
+# 마이너스 기호 깨짐 방지
+plt.rcParams['axes.unicode_minus'] = False
 
 
 def load_data(csv_path: str) -> pd.DataFrame:
@@ -73,8 +73,8 @@ def plot_text_length_distribution(df: pd.DataFrame, site_name: str, output_dir: 
     """
     fig, axes = plt.subplots(1, 2, figsize=(15, 5))
     
-    # 컬럼명 확인 (context 또는 text)
-    text_col = 'context' if 'context' in df.columns else 'text'
+    # 컬럼명 확인 (content 또는 text)
+    text_col = 'content' if 'content' in df.columns else 'text'
     
     # 문자 수 분포
     axes[0].hist(df[text_col].str.len(), bins=50, edgecolor='black', alpha=0.7, color='lightcoral')
@@ -102,7 +102,14 @@ def plot_date_distribution(df: pd.DataFrame, site_name: str, output_dir: str):
     날짜 분포 시각화
     """
     # 날짜 파싱
-    df['date_parsed'] = pd.to_datetime(df['date'], errors='coerce', format='%b %d, %Y')
+    if site_name == "tripcom":
+        # Trip.com은 영문 포맷
+        date_format = '%b %d, %Y'
+    else:
+        # 구글, 카카오는 한국식 숫자 포맷
+        date_format = '%Y.%m.%d.'
+
+    df['date_parsed'] = pd.to_datetime(df['date'], errors='coerce', format=date_format)
     df_with_date = df.dropna(subset=['date_parsed'])
     
     if len(df_with_date) == 0:
@@ -166,7 +173,7 @@ def plot_correlation_analysis(df: pd.DataFrame, site_name: str, output_dir: str)
     상관관계 분석 시각화
     """
     # 컬럼명 확인
-    text_col = 'context' if 'context' in df.columns else 'text'
+    text_col = 'content' if 'content' in df.columns else 'text'
     
     fig, axes = plt.subplots(1, 2, figsize=(15, 5))
     

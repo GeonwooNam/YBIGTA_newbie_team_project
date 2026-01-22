@@ -7,18 +7,19 @@ import matplotlib.pyplot as plt
 import os
 from collections import Counter, defaultdict
 import re
+import platform
 
-# 한글 폰트 설정
-plt.rcParams['font.family'] = 'Malgun Gothic'
+# 운영체제 확인 후 한글폰트 설정
+if platform.system() == 'Windows':
+    plt.rc('font', family='Malgun Gothic')
+elif platform.system() == 'Darwin': # Mac
+    plt.rc('font', family='AppleGothic')
+elif platform.system() == 'Linux': # Linux
+    # 리눅스는 나눔고딕(NanumGothic)이 기본적으로 많이 쓰입니다.
+    plt.rc('font', family='NanumGothic')
+
+# 마이너스 기호 깨짐 방지
 plt.rcParams['axes.unicode_minus'] = False
-
-try:
-    plt.rcParams['font.family'] = 'Malgun Gothic'
-except:
-    try:
-        plt.rcParams['font.family'] = 'AppleGothic'
-    except:
-        plt.rcParams['font.family'] = 'DejaVu Sans'
 
 
 # 간단한 긍정/부정 단어 사전
@@ -61,7 +62,7 @@ def calculate_sentiment_score(text: str) -> float:
     return sentiment_score
 
 
-def analyze_word_rating_correlation(df: pd.DataFrame, text_col: str = 'context', top_n: int = 20):
+def analyze_word_rating_correlation(df: pd.DataFrame, text_col: str = 'content', top_n: int = 20):
     """
     단어별 평균 별점 분석
     """
@@ -93,7 +94,7 @@ def analyze_word_rating_correlation(df: pd.DataFrame, text_col: str = 'context',
     return sorted_words[:top_n], sorted_words[-top_n:]
 
 
-def plot_word_rating_correlation(df: pd.DataFrame, site_name: str, output_dir: str, text_col: str = 'context'):
+def plot_word_rating_correlation(df: pd.DataFrame, site_name: str, output_dir: str, text_col: str = 'content'):
     """
     단어별 평균 별점 시각화
     """
@@ -142,7 +143,7 @@ def plot_word_rating_correlation(df: pd.DataFrame, site_name: str, output_dir: s
     print(f"  - 단어-별점 상관관계 그래프 저장: {site_name}_word_rating_correlation.png")
 
 
-def plot_sentiment_rating_correlation(df: pd.DataFrame, site_name: str, output_dir: str, text_col: str = 'context'):
+def plot_sentiment_rating_correlation(df: pd.DataFrame, site_name: str, output_dir: str, text_col: str = 'content'):
     """
     감정 점수와 별점의 상관관계 시각화
     """
@@ -218,7 +219,7 @@ def perform_sentiment_analysis_for_site(csv_path: str, site_name: str, output_di
     df = pd.read_csv(csv_path)
     
     # 컬럼명 확인
-    text_col = 'context' if 'context' in df.columns else 'text'
+    text_col = 'content' if 'content' in df.columns else 'text'
     if text_col not in df.columns:
         print(f"  - 경고: {site_name}에 텍스트 컬럼이 없습니다.")
         return

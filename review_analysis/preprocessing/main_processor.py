@@ -1,5 +1,5 @@
 """
-Trip.com 리뷰 데이터 전처리 및 피처 엔지니어링 모듈
+Google, Kakao, Trip.com 리뷰 데이터 전처리 및 피처 엔지니어링 모듈
 """
 import pandas as pd
 import numpy as np
@@ -7,20 +7,45 @@ import re
 from datetime import datetime
 from typing import Optional
 import os
+import pickle
+from pathlib import Path
+
+from soynlp.word import WordExtractor
+from soynlp.tokenizer import LTokenizer
 
 from review_analysis.preprocessing.base_processor import BaseDataProcessor
 
 
 class MainProcessor(BaseDataProcessor):
     """
-    Trip.com 리뷰 데이터를 전처리하고 피처 엔지니어링을 수행하는 클래스
+    Google, Kakao, Trip.com 리뷰 데이터를 전처리하고 피처 엔지니어링을 수행하는 클래스
     """
     
     def __init__(self, input_path: str, output_dir: str):
         super().__init__(input_path, output_dir)
         self.df: Optional[pd.DataFrame] = None
         self.processed_df: Optional[pd.DataFrame] = None
-        
+
+        # 파일명에서 사이트 이름 추출
+        filename = os.path.basename(input_path).lower()
+
+        if 'google' in filename:
+            self.site_name = 'google'
+        elif 'kakao' in filename:
+            self.site_name = 'kakao'
+        elif 'trip' in filename:  # trip.com 또는 tripcom 모두 대응
+            self.site_name = 'tripcom'
+        else:
+            self.site_name = 'unknown'
+
+        # soynlp 토크나이저 (lazy init)
+        self._soy_tokenizer: Optional[LTokenizer] = None
+        # 학습 결과 캐시(재현성/속도용): output_dir에 저장
+        self._soy_scores_path = Path(output_dir) / f"soynlp_scores_{self.site_name}.pkl"
+
+        # 한글/숫자 조합까지 남기고 영어 토큰은 제거하기 위한 패턴
+        self._keep_ko_token = re.compile(r"^(?:[가-힣]{2,}\d*|\d+[가-힣]{2,})$")
+
     def preprocess(self):
         """
         데이터 전처리 수행
@@ -203,7 +228,42 @@ class MainProcessor(BaseDataProcessor):
         print(f"    * 별점: rating_group, is_positive")
         print(f"    * 날짜: year, month, day, weekday, year_month")
         print(f"    * 텍스트 특성: text_has_emoji, text_has_url")
-    
+
+    def _universal_tokenizer(self, text: str):
+        """
+        Kiwi를 사용하여 한글(명사/형용사/동사)과 영어(SL)를 추출하는 통합 토크나이저
+        """
+        if not text:
+            return []
+
+        # Kiwi로 형태소 분석
+        tokens = self.kiwi.tokenize(text)
+
+        # Kiwi 품사 태그 매핑:
+        # NNG(일반명사), NNP(고유명사), VV(동사), VA(형용사), SL(외국어/영어)
+        allowed_tags = ['NNG', 'NNP', 'VV', 'VA', 'SL']
+
+        # 불용어 리스트 (기존 유지)
+        ko_stopwords = [
+            '합니다', '있습니다', '정말', '진짜', '너무', '곳', '것',
+            '여기', '거기', '저기', '이곳', '그곳', '저곳', '현지', '분들', '우리', '저희',
+            '많이', '조금', '살짝', '매우', '무척', '엄청', '완전', '특히', '항상', '맨날',
+            '그냥', '막상', '역시', '역시나', '확실히', '생각보다', '의외로',
+            '같아요', '입니다', '않아요', '없어요', '있어요', '돼요', '되네요', '해주시네요',
+            '그리고', '하지만', '그런데', '그래서', '때문', '경우', '정도', '이후', '이전',
+            '아', '오', '음', '나', '더', '또', '안', '못'
+        ]
+        en_stopwords = list(ENGLISH_STOP_WORDS)
+
+        selected_words = [
+            token.form.lower() for token in tokens
+            if token.tag in allowed_tags
+               and token.form.lower() not in ko_stopwords
+               and token.form.lower() not in en_stopwords
+               and len(token.form) > 1  # 한 글자 제외
+        ]
+        return selected_words
+
     def _vectorize_text(self):
         """
         텍스트 벡터화

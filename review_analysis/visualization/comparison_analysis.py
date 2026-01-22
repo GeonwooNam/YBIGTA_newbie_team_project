@@ -10,18 +10,19 @@ import os
 from collections import Counter
 from datetime import datetime
 import glob
+import platform
 
-# 한글 폰트 설정
-plt.rcParams['font.family'] = 'Malgun Gothic'  # Windows
+# 운영체제 확인 후 한글폰트 설정
+if platform.system() == 'Windows':
+    plt.rc('font', family='Malgun Gothic')
+elif platform.system() == 'Darwin': # Mac
+    plt.rc('font', family='AppleGothic')
+elif platform.system() == 'Linux': # Linux
+    # 리눅스는 나눔고딕(NanumGothic)이 기본적으로 많이 쓰입니다.
+    plt.rc('font', family='NanumGothic')
+
+# 마이너스 기호 깨짐 방지
 plt.rcParams['axes.unicode_minus'] = False
-
-try:
-    plt.rcParams['font.family'] = 'Malgun Gothic'
-except:
-    try:
-        plt.rcParams['font.family'] = 'AppleGothic'  # Mac
-    except:
-        plt.rcParams['font.family'] = 'DejaVu Sans'
 
 
 def load_preprocessed_data(csv_path: str) -> pd.DataFrame:
@@ -115,7 +116,7 @@ def plot_text_length_comparison(data_dict: dict, output_dir: str):
         if 'text_len' in df.columns:
             axes[0].hist(df['text_len'], bins=50, alpha=0.6, label=site_name, edgecolor='black')
         else:
-            text_col = 'context' if 'context' in df.columns else 'text'
+            text_col = 'content' if 'content' in df.columns else 'text'
             text_lengths = df[text_col].str.len()
             axes[0].hist(text_lengths, bins=50, alpha=0.6, label=site_name, edgecolor='black')
     
@@ -130,7 +131,7 @@ def plot_text_length_comparison(data_dict: dict, output_dir: str):
         if 'word_count' in df.columns:
             axes[1].hist(df['word_count'], bins=50, alpha=0.6, label=site_name, edgecolor='black')
         else:
-            text_col = 'context' if 'context' in df.columns else 'text'
+            text_col = 'content' if 'content' in df.columns else 'text'
             word_counts = df[text_col].str.split().str.len()
             axes[1].hist(word_counts, bins=50, alpha=0.6, label=site_name, edgecolor='black')
     
