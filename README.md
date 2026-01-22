@@ -50,6 +50,35 @@ YBIGTA_newbie_team_project/
 
 ---
 
+## 실행 방법
+
+### 1. 환경 설정
+```bash
+pip install -r requirements.txt
+```
+
+### 2. 크롤링 실행
+* 경로 문제가 있을 수 있습니다. 주의해주시면 감사드리겠습니다!
+```bash
+cd review_analysis/crawling
+python main.py -o ./database --all
+```
+
+### 3. 전처리 및 피처 엔지니어링 실행
+```bash
+# 명세에 따른 실행 방법
+cd ../preprocessing
+python main.py --output_dir ../../database --all
+```
+
+### 4. EDA 및 시각화 실행
+```bash
+cd ../..
+python -m review_analysis.visualization.main
+```
+
+---
+
 ## 3-2. 크롤링 과제 
 
 1) 데이터 소개 
@@ -71,14 +100,7 @@ YBIGTA_newbie_team_project/
 
 2) 실행 방법 
 
-```bash
-# 1. 환경 설정
-pip install -r requirements.txt
-
-# 2. 모든 크롤러 실행 (경로 문제 주의)
-cd review_analysis/crawling
-python main.py -o ./database --all
-```
+* 위의 실행방법 부분을 참고해주시면 감사하겠습니다!
 
 ---
 
@@ -147,16 +169,6 @@ python main.py -o ./database --all
 ### 3) 비교 분석 
 
 사이트 간 키워드 빈도, 감정 분석 결과 및 시계열 추이를 비교 분석한 시각화 자료를 포함합니다.
-
----
-
-### 4) 전처리 실행 방법 
-
-```bash
-# review_analysis/preprocessing/ 경로에서 실행
-python main.py --output_dir database --all
-
-```
 
 ---
 
