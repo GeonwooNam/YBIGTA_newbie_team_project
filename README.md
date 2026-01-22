@@ -75,12 +75,9 @@ YBIGTA_newbie_team_project/
 # 1. 환경 설정
 pip install -r requirements.txt
 
-# 2. 모든 크롤러 실행 (명세 기준)
-python main.py -o database --all
-
-# 3. 특정 크롤러만 실행 (예: tripcom)
-python main.py -o database -c tripcom
-
+# 2. 모든 크롤러 실행 (경로 문제 주의)
+cd review_analysis/crawling
+python main.py -o ./database --all
 ```
 
 ---
