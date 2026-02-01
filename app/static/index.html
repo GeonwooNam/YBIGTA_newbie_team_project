@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css?v=20260112_1">
+    <link rel="stylesheet" as="style" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <title>User Management</title>
+</head>
+<body>
+    <div class="container" id="login-screen">
+        <h1>
+            <img class="title-icon" src="https://avatars.githubusercontent.com/u/16025679?s=280&v=4" alt="" aria-hidden="true">
+            YBIGTA
+        </h1><br>
+        <div class="section" id="login-section">
+            <h2>Login</h2>
+            <form id="login-form">
+                <div class="input-wrap" id="login-email-wrap" data-state="empty" data-touched="0">
+                    <input type="email" id="login-email" placeholder="Email" required>
+                    <span class="status" aria-live="polite"></span>
+                </div>
+                <div class="input-wrap" id="login-password-wrap" data-state="empty" data-touched="0">
+                    <input type="password" id="login-password" placeholder="Password" required>
+                    <span class="status" aria-live="polite"></span>
+                </div>
+                <button type="button" onclick="loginUser()">Login</button>
+            </form>
+        </div><br>
+        <div class="section" id="register-section">
+            <h2>Register</h2>
+            <form id="register-form">
+                <div class="input-wrap" id="register-email-wrap" data-state="empty" data-touched="0">
+                    <input type="email" id="register-email" placeholder="Email" required>
+                    <span class="status" aria-hidden="true"></span>
+                </div>
+                <div class="input-wrap" id="register-password-wrap" data-state="empty" data-touched="0">
+                    <input type="password" id="register-password" placeholder="Password" required>
+                    <span class="status" aria-hidden="true"></span>
+                </div>
+                <div class="input-wrap" id="register-username-wrap" data-state="empty" data-touched="0">
+                    <input type="text" id="register-username" placeholder="Username" required>
+                    <span class="status" aria-hidden="true"></span>
+                </div>
+                <button type="button" onclick="registerUser()">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container" id="logged-in-screen" style="display: none;">
+        <h1>Welcome, <span id="username"></span></h1><br>
+        <div class="section" id="update-password-section">
+            <h2>Update Password</h2>
+            <form id="update-password-form">
+                <div class="input-wrap" id="update-password-wrap" data-state="empty" data-touched="0">
+                    <input type="password" id="update-password" placeholder="New Password" required><br>
+                </div>
+                <button type="button" onclick="updatePassword()">Update Password</button>
+            </form>
+        </div><br>
+        <div class="section" id="delete-section">
+            <h2>Delete Account</h2>
+            <button type="button" onclick="deleteUser()">Delete Account</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
