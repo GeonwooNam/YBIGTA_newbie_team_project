@@ -8,5 +8,7 @@ mongo_url = os.getenv("MONGO_URL")
 
 mongo_client = MongoClient(mongo_url)
 
-mongo_db = mongo_client.get_database()
+# mongo_db = mongo_client.get_database()
+
+mongo_db = mongo_client.get_database("ybigta_db")
 
