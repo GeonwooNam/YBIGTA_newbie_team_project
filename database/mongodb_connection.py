@@ -10,5 +10,6 @@ mongo_client = MongoClient(mongo_url)
 
 # mongo_db = mongo_client.get_database()
 
-mongo_db = mongo_client.get_database("ybigta_db")
+db_name = os.getenv("DB_NAME")
+mongo_db = mongo_client.get_database(db_name)
 
