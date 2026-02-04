@@ -3,6 +3,12 @@ from fastapi.staticfiles import StaticFiles
 import uvicorn
 import os
 
+from database.mysql_connection import engine
+from app.user.user_repository import Base
+
+# 서버 시작 시 테이블 자동 생성
+Base.metadata.create_all(bind=engine)
+
 from app.user.user_router import user
 from app.review.review_router import router as review
 from app.config import PORT

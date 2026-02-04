@@ -1,14 +1,15 @@
 import re
+from typing import Optional, List, Any
 import pandas as pd
 from review_analysis.preprocessing.base_processor import BaseDataProcessor
 
 class ExampleProcessor(BaseDataProcessor):
-    def __init__(self, input_path: str = None, output_dir: str = None):
+    def __init__(self, input_path: Optional[str] = None, output_dir: Optional[str] = None):
         # 명세에 따라 초기화 인자는 유지하되, MongoDB 데이터를 직접 다룰 수 있게 합니다.
-        super().__init__(input_path, output_dir)
-        self.df = None
+        super().__init__(input_path or "", output_dir or "")
+        self.df: Optional[pd.DataFrame] = None
 
-    def load_mongo_data(self, data: list):
+    def load_mongo_data(self, data: list[dict]):
         """MongoDB에서 가져온 딕셔너리 리스트를 DataFrame으로 변환"""
         self.df = pd.DataFrame(data)
         if "_id" in self.df.columns:
@@ -86,3 +87,14 @@ class ExampleProcessor(BaseDataProcessor):
         if self.df is not None:
             return self.df.to_dict('records')
         return []
+
+    def save_to_database(self):
+        """
+        부모 클래스의 추상 메서드 구현.
+        현재 로직은 Router에서 처리하므로 여기서는 pass 처리합니다.
+        """
+        if self.df is None:
+            print("No data to save.")
+            return
+        print("Saving processed data to database...")
+        pass

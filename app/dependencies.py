@@ -1,4 +1,5 @@
 from fastapi import Depends
+from sqlalchemy.orm import Session
 from database.mysql_connection import SessionLocal
 from app.user.user_repository import UserRepository
 from app.user.user_service import UserService
