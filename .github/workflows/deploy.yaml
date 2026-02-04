@@ -3,7 +3,7 @@ name: Deploy to EC2 with Docker
 on:
   push:
     branches:
-      - main
+      - geonu
 
 jobs:
   # Job 1: Docker 이미지 빌드 및 Docker Hub 푸시
