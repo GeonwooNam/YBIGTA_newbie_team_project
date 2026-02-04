@@ -12,11 +12,11 @@ def get_db():
         db.close()
 
 # UserRepository에 DB 세션을 주입하여 반환
-def get_user_repo(db = Depends(get_db)):
+def get_user_repo(db: Session = Depends(get_db)):
     return UserRepository(db)
 
-def get_user_repository() -> UserRepository:
-    return UserRepository()
+def get_user_repository(db: Session = Depends(get_db)) -> UserRepository:
+    return UserRepository(db)
 
 def get_user_service(repo: UserRepository = Depends(get_user_repository)) -> UserService:
     return UserService(repo)
