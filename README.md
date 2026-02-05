@@ -29,24 +29,176 @@
 > 조별과제를 통해 좋은 협업 경험을 쌓고 싶습니다. 잘 부탁드립니다.  
 
 ---
-## 프로젝트 구조 
+## 8. DB, Docker, AWS
 
-```text
-YBIGTA_newbie_team_project/
-├── github/                      # 협업 과제 증빙 이미지
-├── database/                    # 데이터 저장 폴더
-│   ├── reviews_{사이트}.csv      # 원본 데이터
-│   └── preprocessed_reviews_{사이트}.csv # 전처리 완료 데이터
-├── review_analysis/
-│   ├── crawling/                # 크롤링 소스 코드
-│   ├── preprocessing/           # 전처리 소스 코드
-│   └── plots/                   # 시각화 그래프 이미지
-├── utils/                       # 공통 유틸리티 (logger 등)
-├── .gitignore                   # 캐시 파일 관리
-├── requirements.txt             # 패키지 의존성
-└── README.md                    # 프로젝트 안내서
+### 1) DB Configuration
 
-```
+프로젝트의 목적에 따라 관계형 데이터베이스(MySQL)와 비관계형 데이터베이스(MongoDB)를 혼합하여 구축하였습니다.
+
+* **User Data (MySQL)**: 사용자 정보의 생성, 조회, 수정, 삭제(CRUD)를 담당합니다. 클라우드 환경에서는 **AWS RDS**를 활용하여 호스팅합니다.
+
+
+* **Review Data (MongoDB)**: 크롤링한 원본 데이터와 전처리된 데이터를 저장합니다. 클라우드 환경에서는 **MongoDB Atlas**를 활용합니다.
+
+
+* **Preprocessing Automation**: `/review/preprocess/{site_name}` API를 통해 MongoDB에 저장된 원본 데이터를 자동으로 전처리하여 다시 저장하는 로직을 구현하였습니다.
+
+
+
+### 2) Docker Hub
+
+애플리케이션의 환경 의존성을 해결하기 위해 Docker 이미지를 생성하고 Docker Hub에 배포하였습니다.
+
+* **Docker Hub Repository**: `https://hub.docker.com/repository/docker/geonunam/ybigta-assignment/` 
+
+
+* **Security**: `.env`와 같은 민감 정보가 포함되지 않도록 `.dockerignore` 파일을 설정하여 보안을 강화하였습니다.
+
+
+
+### 3) AWS Deployment & API Results
+
+AWS EC2 인스턴스를 생성하고, Docker Hub에서 이미지를 Pull 받아 컨테이너를 실행하였습니다.
+
+**API 실행 결과 (Swagger)** 
+
+> 모든 API는 EC2 퍼블릭 IP 환경에서 정상 작동함을 확인하였습니다. (파일명: `aws/*.png`)
+
+| API Endpoint     | Description       | Screenshot                          |
+|------------------|-------------------|-------------------------------------|
+| `/api/user/register` | 유저 회원가입           | ![register](aws/register.png)       |
+| `/api/user/login` | 유저 로그인            | ![login](aws/login.png)             |
+| `/api/user/update-password` | 유저 비밀번호 변경        | ![update-password](aws/update-password.png) |
+| `/api/user/delete`     | 유저 정보 제거          | ![delete](aws/delete.png)          |
+| `/review/preprocess/{site_name}` | 데이터 전처리 | ![preprocess](aws/preprocess.png)   |
+
+---
+
+### 4) GitHub Action (CI/CD)
+
+코드 변경 시마다 반복되는 빌드 및 배포 과정을 자동화하기 위해 **GitHub Actions**를 사용하였습니다.
+
+Workflow 구조 
+
+1. **Build and Push Docker Image**: 변경된 코드를 바탕으로 Docker 이미지를 빌드하고 Docker Hub에 Push합니다.
+
+
+2. **Deploy to EC2**: EC2 인스턴스에 접속하여 최신 이미지를 Pull 받고 컨테이너를 재실행합니다.
+
+
+
+Pipeline 관리 
+
+* **GitHub Secrets**: Docker ID, Password, EC2 IP, PEM Key 등 보안이 필요한 변수들은 Repository Secrets로 안전하게 관리합니다.
+
+
+* **배포 성공 확인**
+
+![github_action](aws/github_action.png)
+** 현재는 인스턴스를 내려서 성공이 뜨지 않는 점 양해 부탁드립니다. geonu 브랜치에서 성공 이력 확인하실 수 있습니다!
+
+---
+
+### 5) VPC를 활용하여 보안 설정
+
+이번 프로젝트에서는 서비스의 보안성을 위해 **VPC(Virtual Private Cloud)** 환경을 설계하고 적용하였습니다. 
+
+### VPC 및 네트워크 계층 구조
+
+* **VPC 정의**: 물리적으로 동일한 AWS 클라우드 자원 내에서 논리적으로 격리된 가상 네트워크 환경을 의미합니다. 이를 통해 사용자만의 독립적인 네트워크를 구성하고 트래픽 흐름을 제어할 수 있습니다. 
+
+
+* **서브넷 구성**: 외부망과 연결되는 **Public Subnet**(EC2 배치)과 외부 접근이 완전히 차단된 **Private Subnet**(RDS 배치)으로 계층화하였습니다. 
+
+![vpc_3](aws/vpc_3.png)
+
+위 이미지의 리소스 맵을 보면 `RDS-Pvt-subnet`들이 구성되어 있으며, 인터넷 게이트웨이(IGW)는 특정 경로를 통해서만 연결된 것을 확인할 수 있습니다.
+
+
+
+### 인스턴스 간 접근 제어 (Security Group)
+
+단순히 네트워크를 분리하는 것을 넘어, 보안 그룹(Security Group)을 통해 "EC2를 거쳐야만 RDS에 접근할 수 있는" 구조를 구현했습니다. 
+
+* **RDS 보안 설정**: RDS의 인바운드 규칙에 모든 IP(`0.0.0.0/0`)가 아닌, **EC2가 속한 보안 그룹 ID**만 허용하도록 설정하였습니다. 
+
+
+![vpc_1](aws/vpc_1.png)
+위 이미지의 보안 그룹 규칙을 보면, 특정 보안 그룹(`sg-02d8c67...` 등)으로부터의 트래픽만 허용하고 있는 것을 볼 수 있습니다.
+
+
+* **데이터베이스 접근**: 이를 통해 외부 사용자는 DB에 직접 연결할 수 없으며, 오직 배포된 애플리케이션(EC2)을 통해서만 데이터를 CRUD 할 수 있습니다. 
+*   인터넷 요청이 게이트웨이를 지나 EC2(보안 그룹 1)에 도달하고, EC2가 다시 RDS(보안 그룹 2)로 요청을 보내는 안전한 흐름을 확인할 수 있습니다.
+
+![vpc_2](aws/vpc_2.png)
+위 이미지를 확인하면 생성된 EC2 인스턴스의 퍼블릭 IPv4 주소(54.252.167.163) 를 확인할 수 있습니다. 모든 API endpoint는 해당 퍼블릭 IP와 할당된 포트를 통해 외부에서 접근 가능하며, Swagger를 통해 총 5개의 API가 성공적으로 응답하는 것을 확인하였습니다.
+
+### 기타 관련 첨부 이미지
+![vpc_4](aws/vpc_4.png)
+![vpc_5](aws/vpc_5.png)
+
+---
+
+### 6) 프로젝트를 진행하며 깨달은 점
+
+### 1. 과금 방지를 통해 AWS 리소스 수명 관리의 중요성 인식
+
+과제 종료 후 RDS와 EC2를 삭제하는 과정에서, 리소스를 "삭제했다"는 것과 "과금이 완전히 종료되었다"는 것이 다를 수 있다는 점을 체감했습니다. 
+
+* **RDS Final Snapshot**: DB 인스턴스를 삭제하더라도 최종 스냅샷을 생성하도록 설정하면 해당 데이터가 스토리지 비용을 발생시킨다는 점을 배웠습니다. 
+
+
+* **EBS 볼륨**: EC2 삭제 시 '종료 시 삭제' 옵션을 체크하지 않으면 독립적인 EBS 볼륨으로 남아 계속 과금된다는 점을 확인했습니다.
+
+
+* **인사이트**: AWS 환경에서는 리소스 생성뿐 아니라 **수명 관리와 깔끔한 정리(Clean-up)**까지가 진정한 작업의 마무리라는 인식을 갖게 되었습니다. 
+
+
+
+### 2. GitHub Actions는 "코드 자동화"가 아니라 "환경 자동화"
+
+단순히 코드를 빌드하는 것을 넘어, Docker Hub, EC2, Secrets, SSH 인증 등 복잡한 외부 환경을 연결하는 파이프라인의 핵심임을 깨달았습니다. 
+
+* **Workflow 파일의 엄격성**: `.github/workflows/`라는 정확한 경로와 특정 브랜치 이벤트가 트리거가 되어야만 실행되는 **"GitHub 서버에서 동작하는 코드"**라는 개념을 명확히 했습니다. 
+
+
+* **인사이트**: 로컬 환경과 원격 실행 환경의 구분이 CI/CD의 핵심임을 이해하게 되었습니다.
+
+### 3. 클라우드 인프라의 일관성과 리전(Region) 및 VPC 설계의 중요성
+
+단순히 인스턴스를 생성하는 것을 넘어, 서비스 간의 원활한 통신을 위해 인프라의 **지리적·논리적 일관성**이 왜 중요한지 체감했습니다.
+
+* **리전(Region) 불일치 문제**: 초기 설정 시 EC2와 RDS를 서로 다른 리전에 생성하여 통신 지연 및 연결 실패를 겪었습니다. 이후 모든 자원을 **ap-southeast-2(시드니)** 리전으로 통일하여 안정적인 내부 네트워크망을 확보하였습니다.
+
+
+* **VPC 내부 라우팅**: 보안을 위해 RDS를 Private Subnet에 배치하면서, EC2가 위치한 Public Subnet과의 라우팅 테이블 및 보안 그룹 설정을 맞추는 과정에서 VPC의 논리적 구조를 깊이 이해하게 되었습니다.
+
+
+* **인사이트**: 클라우드 아키텍처 설계 시 **리전 선택과 네트워크 계층 분리**가 성능과 보안, 그리고 비용에 직결되는 핵심 요소임을 배웠습니다.
+
+### 4. 환경 변수와 특수문자 처리를 통한 애플리케이션 디버깅
+
+Docker 환경에서 배포된 서버가 API 500 에러를 지속적으로 반환하는 문제를 해결하며, **환경 변수 관리**의 세밀함을 배웠습니다.
+
+* **MongoDB URL 인코딩 문제**: MongoDB Atlas 연결을 위한 URL에 포함된 **비밀번호 특수문자(`*`)**가 환경 변수로 전달되는 과정에서 문자열 파싱 오류를 일으켜 DB 연결 실패(API 500)를 유발했습니다.
+
+
+* **해결 과정**: 에러 로그를 추적하여 DB 커넥션 단계의 문제임을 파악하였고, URL 인코딩(Percent-encoding)을 적용하거나 환경 변수 주입 방식을 개선하여 문제를 해결했습니다.
+
+
+* **인사이트**: 컨테이너화된 환경에서는 설정값 하나가 전체 서비스 가용성에 치명적인 영향을 줄 수 있으며, 특히 **민감 정보(Secrets)와 환경 변수를 다룰 때의 엄격한 규격 준수**가 필수적임을 깨달았습니다.
+
+### 5. SSH 인증 오류 해결을 통한 보안 구조 체득
+
+EC2 배포 단계에서 발생한 SSH 접속 실패 문제를 해결하며 키 기반 인증 구조를 깊이 있게 이해하게 되었습니다.
+
+* **Secrets 관리**: GitHub Secrets에는 단순히 파일명이 아니라 **PEM 키의 실제 내용(Header/Footer 포함 전체)**을 저장해야 함을 알게 되었습니다.
+
+
+* **사용자명(User) 식별**: AMI 종류에 따라 기본 사용자명(`ubuntu` vs `ec2-user`)이 다르며, 이 정보가 인증의 성공 여부를 결정하는 결정적 요인임을 확인했습니다.
+
+
+* **인사이트**: 이 과정을 통해 SSH 키 기반 인증의 원리와 GitHub Actions에서의 안전한 보안 정보 관리 방식을 실무적으로 체감할 수 있었습니다.
 
 ---
 
