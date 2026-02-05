@@ -95,6 +95,7 @@ Pipeline 관리
 * **배포 성공 확인**
 
 ![github_action](aws/github_action.png)
+** 현재는 인스턴스를 내려서 성공이 뜨지 않는 점 양해 부탁드립니다. geonu 브랜치에서 성공 이력 확인하실 수 있습니다!
 
 ---
 
