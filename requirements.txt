@@ -15,11 +15,6 @@ protobuf==4.25.5
 pydantic==2.10.6
 pydantic-settings==2.7.1
 
-# Upstage 0.3.0은 0.20.0 미만의 tokenizers를 원함
-tokenizers==0.19.1
-# tokenizers 버전에 맞춰 transformers 버전도 하향 조정
-transformers==4.40.0
-
 # --- 데이터 및 유틸리티 ---
 pandas>=2.2.0
 python-dotenv>=1.0.1
