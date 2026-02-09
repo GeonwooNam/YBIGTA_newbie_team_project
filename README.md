@@ -34,7 +34,7 @@
 
 ### Streamlit Cloud 데모
 
-**배포 링크**: [https://hyfshmpfnrx5h5rrvfawl3.streamlit.app/)
+**배포 링크**: [https://hyfshmpfnrx5h5rrvfawl3.streamlit.app/](https://hyfshmpfnrx5h5rrvfawl3.streamlit.app/)
 
 에버랜드 리뷰 데이터를 기반으로 한 RAG 챗봇을 LangChain + LangGraph로 구현하고, Streamlit Cloud에 배포하였습니다.
 
@@ -110,6 +110,9 @@ class GraphState(TypedDict):
 
 #### RAG Review Node - 리뷰 기반 답변
 ![RAG Review 작동 화면](screenshots/screenshot_2.png)
+
+#### Chat Node - 일반 대화
+![Chat 작동 화면](screenshots/screenshot_3.png)
 
 ---
 
