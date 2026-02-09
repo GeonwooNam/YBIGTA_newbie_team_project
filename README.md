@@ -29,6 +29,110 @@
 > 조별과제를 통해 좋은 협업 경험을 쌓고 싶습니다. 잘 부탁드립니다.  
 
 ---
+
+## 9-2. RAG, Agent 과제
+
+### Streamlit Cloud 데모
+
+**배포 링크**: [https://hyfshmpfnrx5h5rrvfawl3.streamlit.app/](https://hyfshmpfnrx5h5rrvfawl3.streamlit.app/)
+
+에버랜드 리뷰 데이터를 기반으로 한 RAG 챗봇을 LangChain + LangGraph로 구현하고, Streamlit Cloud에 배포하였습니다.
+
+---
+
+### 1) 프로젝트 개요
+
+수집한 에버랜드 리뷰 데이터(Google, Kakao, Trip.com)를 활용하여 3가지 기능을 갖춘 챗봇을 구현하였습니다.
+
+| 노드 | 역할 | 설명 |
+|------|------|------|
+| **Chat Node** | 일반 대화 | 에버랜드와 무관한 일상 대화, 인사 등을 처리 |
+| **Subject Info Node** | 에버랜드 정보 안내 | `subjects.json`에 저장된 기본 정보(위치, 운영시간, 입장료, 놀이기구 등)를 기반으로 답변 |
+| **RAG Review Node** | 리뷰 기반 답변 | FAISS 벡터스토어에서 관련 리뷰를 검색(retrieve)하여 답변 생성 |
+
+---
+
+### 2) 아키텍처 및 조건부 라우팅
+
+![파이프라인 구조도](diagram.jpg)
+
+#### State Class 구현 방식
+
+`GraphState`는 `TypedDict`를 상속하여 그래프 전체에서 공유되는 상태를 정의합니다.
+
+```python
+class GraphState(TypedDict):
+    user_input: str                    # 사용자 입력 메시지
+    chat_history: List[dict]           # 대화 이력 [{"role": "user/assistant", "content": "..."}]
+    route: str                         # 라우팅 결과: "chat" | "subject_info" | "rag_review"
+    response: str                      # LLM 응답 결과
+    retrieved_reviews: List[str]       # RAG 검색된 리뷰 메타데이터
+```
+
+각 노드는 `GraphState`를 입력으로 받아 필요한 필드만 업데이트하여 반환하는 구조입니다. `chat_history`를 통해 세션 내 대화 맥락을 유지합니다.
+
+#### 조건부 라우팅 구현 방식
+
+**규칙 기반이 아닌 LLM 기반 라우팅**을 구현하였습니다. `router_node`에서 Upstage Solar Mini LLM이 사용자 질문의 의도를 분석하여 3가지 경로 중 하나로 분류합니다.
+
+```
+사용자 입력 → [Router Node (LLM 판단)] → chat / subject_info / rag_review
+```
+
+- **Router Prompt**: LLM에게 `subject_info`, `rag_review`, `chat` 중 하나만 답하도록 지시하는 프롬프트를 설계
+- **Fallback**: LLM 응답이 유효한 경로가 아닐 경우 기본값으로 `chat`을 사용
+- **LangGraph `add_conditional_edges`**: `route_decision` 함수가 `state["route"]` 값을 읽어 해당 노드로 분기
+
+```
+[Entry] → router → (조건부 분기)
+                     ├─ "chat"         → Chat Node         → [END]
+                     ├─ "subject_info" → Subject Info Node  → [END]
+                     └─ "rag_review"   → RAG Review Node    → [END]
+```
+
+---
+
+### 3) RAG 파이프라인
+
+| 단계 | 구현 내용 |
+|------|----------|
+| **임베딩** | Upstage `solar-embedding-1-large` 모델로 전처리된 리뷰 텍스트를 벡터화 |
+| **벡터 저장소** | FAISS 인덱스로 로컬 저장 (`st_app/db/faiss_index/`) |
+| **검색** | 사용자 질문과 유사한 상위 5개 리뷰 문서를 retrieve |
+| **생성** | 검색된 리뷰 컨텍스트 + 질문을 Upstage `solar-mini` LLM에 전달하여 답변 생성 |
+
+---
+
+### 4) 작동 화면
+
+#### Subject Info Node - 에버랜드 정보 질문
+![Subject Info 작동 화면](screenshots/screenshot_1.png)
+
+#### RAG Review Node - 리뷰 기반 답변
+![RAG Review 작동 화면](screenshots/screenshot_2-1.png)
+
+#### Chat Node - 일반 대화
+![Chat 작동 화면](screenshots/screenshot_3.png)
+
+---
+
+### 5) 명세서
+
+수정한 과제 명세서 파일: [`9-2_RAG AGENT 과제 명세서.xlsx`](9-2_RAG%20AGENT%20과제%20명세서.xlsx)
+
+---
+
+### 6) 기술 스택
+
+| 구분 | 기술 |
+|------|------|
+| LLM | Upstage Solar Mini (`solar-mini`) |
+| Embedding | Upstage Solar Embedding (`solar-embedding-1-large`) |
+| 프레임워크 | LangChain + LangGraph |
+| 벡터 DB | FAISS |
+| UI / 배포 | Streamlit / Streamlit Cloud |
+
+---
 ## 8. DB, Docker, AWS
 
 ### 1) DB Configuration
