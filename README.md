@@ -54,6 +54,8 @@
 
 ### 2) 아키텍처 및 조건부 라우팅
 
+![파이프라인 구조도](diagram.jpg)
+
 #### State Class 구현 방식
 
 `GraphState`는 `TypedDict`를 상속하여 그래프 전체에서 공유되는 상태를 정의합니다.
@@ -64,6 +66,7 @@ class GraphState(TypedDict):
     chat_history: List[dict]           # 대화 이력 [{"role": "user/assistant", "content": "..."}]
     route: str                         # 라우팅 결과: "chat" | "subject_info" | "rag_review"
     response: str                      # LLM 응답 결과
+    retrieved_reviews: List[str]       # RAG 검색된 리뷰 메타데이터
 ```
 
 각 노드는 `GraphState`를 입력으로 받아 필요한 필드만 업데이트하여 반환하는 구조입니다. `chat_history`를 통해 세션 내 대화 맥락을 유지합니다.
