@@ -109,7 +109,7 @@ class GraphState(TypedDict):
 ![Subject Info 작동 화면](screenshots/screenshot_1.png)
 
 #### RAG Review Node - 리뷰 기반 답변
-![RAG Review 작동 화면](screenshots/screenshot_2.png)
+![RAG Review 작동 화면](screenshots/screenshot_2-1.png)
 
 #### Chat Node - 일반 대화
 ![Chat 작동 화면](screenshots/screenshot_3.png)
