@@ -21,4 +21,4 @@ def rag_review_node(state: GraphState) -> dict:
     llm = get_llm()
     chain = RAG_REVIEW_PROMPT | llm
     result = chain.invoke({"context": context, "question": state["user_input"]})
-    return {"response": result.content}
+    return {"response": result.content, "retrieved_reviews": context_parts}
